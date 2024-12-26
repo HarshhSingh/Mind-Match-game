@@ -1,20 +1,16 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { createShuffledDeck } from "@/utils/createShuffleDeck";
-import { Card } from "./Card";
-import { delay, motion } from "framer-motion";
-import {
-  CardTitle,
-  Card as CardShadcn,
-  CardContent,
-} from "@/components/ui/card";
+import { motion } from "framer-motion";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { FileQuestionIcon, MessageCircleQuestion } from "lucide-react";
+import { MessageCircleQuestion } from "lucide-react";
+import { Scoreboard } from "@/components/Scoreboard";
+import { StickerCard } from "@/components/StickerCard";
 
 const MemoryGame = () => {
   const [deck, setDeck] = useState(createShuffledDeck());
@@ -56,7 +52,7 @@ const MemoryGame = () => {
   const idealFlips = deck.length;
   const extraFlipsPenalty = Math.max(flips - idealFlips, 0) * 10; // 10 points per extra flip
   const finalScore = Math.max(score - extraFlipsPenalty, 0);
-  console.log({ finalScore, score });
+  console.log({ finalScore, deck });
 
   const restartGame = () => {
     setDeck(createShuffledDeck());
@@ -90,45 +86,59 @@ const MemoryGame = () => {
           </Tooltip>
         </TooltipProvider>
       </div>
-      <div className="flex flex-row relative w-full justify-center">
-        <div className="grid grid-cols-4 gap-4 p-4">
-          {deck.map((card, index) => (
-            <Card
-              key={card.id}
-              card={card}
-              isFlipped={flippedCards.includes(index)}
-              onClick={() => handleCardClick(index)}
-            />
-          ))}
-        </div>
-        <motion.div
-          className="bg-transparent p-2 absolute right-5 top-0 rounded shadow-md border-purple-950 dark:border-blue-800"
-          transition={delay}
-          initial={{ backgroundColor: "purple" }}
-          animate={{ backgroundColor: "transparent" }}
-        >
-          <CardTitle className="text-center">Scores</CardTitle>
-          <CardContent className="p-2">
-            <div className="mt-4">
-              <p className="text-lg">Flips: {flips}</p>
-              <p className="text-lg">Score: {finalScore}</p>
+      {!allMatched ? (
+        <>
+          <div className="flex flex-row relative w-full justify-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="grid grid-cols-4 gap-4 p-4"
+            >
+              {deck.map((card, index) => (
+                <StickerCard
+                  key={card.id}
+                  card={card}
+                  isFlipped={flippedCards.includes(index)}
+                  onClick={() => handleCardClick(index)}
+                />
+              ))}
+            </motion.div>
 
-              <p className="text-lg">Match Streak: {matchStreak}</p>
-              {allMatched && (
-                <p className="text-lg font-bold text-green-600">
-                  You Win! Final Score: {finalScore}
-                </p>
-              )}
-            </div>
-          </CardContent>
+            <Scoreboard
+              score={finalScore}
+              flips={flips}
+              matchStreak={matchStreak}
+            />
+          </div>
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="mt-4 px-4 py-2 bg-green-500 text-white rounded shadow-md"
+            onClick={restartGame}
+          >
+            Restart Game
+          </motion.button>
+        </>
+      ) : (
+        <motion.div
+          className="mt-8 p-4 bg-white rounded-lg shadow-lg w-1/3 text-center  "
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h2 className="text-2xl font-bold mb-4">Game Over!</h2>
+          <p>Final Score: {finalScore}</p>
+          <p>Total Flips: {flips}</p>
+          <button
+            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            onClick={restartGame}
+          >
+            Play Again
+          </button>
         </motion.div>
-      </div>
-      <button
-        className="mt-4 px-4 py-2 bg-green-500 text-white rounded shadow-md"
-        onClick={restartGame}
-      >
-        Restart Game
-      </button>
+      )}
     </div>
   );
 };
