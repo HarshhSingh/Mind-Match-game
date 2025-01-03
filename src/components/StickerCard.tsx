@@ -23,7 +23,7 @@ export const StickerCard: React.FC<IProps> = ({ card, onClick, isFlipped }) => {
         className="w-full h-full flex items-center justify-center text-4xl"
         animate={{ rotateY: isFlipped ? 0 : -180 }}
       >
-        {isFlipped || card.matched ? card.value : `❓`}
+        {isFlipped ? card.value : `❓`}
       </motion.div>
     </motion.div>
   );

@@ -7,10 +7,10 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { useRouter } from "next/navigation";
 
 const menuItems = [
-  { title: "PLAY", delay: 0.2 },
-  { title: "SETTINGS", delay: 0.4 },
-  { title: "STATS", delay: 0.6 },
-  { title: "QUIT", delay: 0.8 },
+  { title: "PLAY", delay: 0.2, link: "/game" },
+  { title: "SETTINGS", delay: 0.4, link: "/settings" },
+  { title: "STATS", delay: 0.6, link: "" },
+  { title: "QUIT", delay: 0.8, link: "" },
 ];
 
 export default function LandingScreen() {
@@ -62,12 +62,12 @@ export default function LandingScreen() {
 
           {/* Menu items */}
           <nav className="relative flex flex-col items-center gap-6">
-            {menuItems.map(({ title, delay }) => (
+            {menuItems.map(({ title, delay, link }) => (
               <motion.button
                 key={title}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                onClick={() => (title === "PLAY" ? router.push("/game") : null)}
+                onClick={() => router.push(link)}
                 transition={{ delay }}
                 onHoverStart={() => setHoveredItem(title)}
                 onHoverEnd={() => setHoveredItem(null)}

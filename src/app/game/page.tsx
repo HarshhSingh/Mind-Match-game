@@ -11,10 +11,13 @@ import {
 import { MessageCircleQuestion } from "lucide-react";
 import { Scoreboard } from "@/components/Scoreboard";
 import { StickerCard } from "@/components/StickerCard";
+import { useMindMatchStore } from "@/hooks/useMatchStore";
+import { cn } from "@/lib/utils";
 
 const MemoryGame = () => {
-  const [deck, setDeck] = useState(createShuffledDeck());
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
+  const { difficulty } = useMindMatchStore();
+  const [deck, setDeck] = useState(createShuffledDeck({ difficulty }));
   const [score, setScore] = useState(1000);
   const [flips, setFlips] = useState(0);
   const [matchStreak, setMatchStreak] = useState(0);
@@ -52,10 +55,10 @@ const MemoryGame = () => {
   const idealFlips = deck.length;
   const extraFlipsPenalty = Math.max(flips - idealFlips, 0) * 10; // 10 points per extra flip
   const finalScore = Math.max(score - extraFlipsPenalty, 0);
-  console.log({ finalScore, deck });
+
 
   const restartGame = () => {
-    setDeck(createShuffledDeck());
+    setDeck(createShuffledDeck({ difficulty }));
     setFlippedCards([]);
     setFlips(0);
     setMatchStreak(0);
@@ -67,7 +70,20 @@ const MemoryGame = () => {
       <h1 className="text-xl font-bold p-3 text-slate-800 dark:text-white">
         How's your memory??{" "}
       </h1>
-      <div className="absolute top-4 right-4 hover:bg-transparent">
+      <div className="absolute inset-0 opacity-100 transition-opacity duration-500 dark:opacity-100">
+        {[...Array(1000)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute h-0.5 w-0.5 rounded-full bg-white dark:bg-white"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animation: `twinkle ${Math.random() * 5 + 3}s infinite`,
+            }}
+          />
+        ))}
+      </div>
+      <div className="absolute top-4 right-4 hover:bg-transparent z-20">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
@@ -88,18 +104,20 @@ const MemoryGame = () => {
       </div>
       {!allMatched ? (
         <>
-          <div className="flex flex-row relative w-full justify-center">
+          <div className="flex flex-row relative w-full justify-center z-10">
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className="grid grid-cols-4 gap-4 p-4"
+              className={cn(
+                `grid grid-cols-${difficulty === "easy" ? "4" : "6"} gap-4 p-4`
+              )}
             >
               {deck.map((card, index) => (
                 <StickerCard
                   key={card.id}
                   card={card}
-                  isFlipped={flippedCards.includes(index)}
+                  isFlipped={flippedCards.includes(index) || card?.matched}
                   onClick={() => handleCardClick(index)}
                 />
               ))}
@@ -108,6 +126,7 @@ const MemoryGame = () => {
             <Scoreboard
               score={finalScore}
               flips={flips}
+              difficulty={difficulty}
               matchStreak={matchStreak}
             />
           </div>
@@ -115,7 +134,7 @@ const MemoryGame = () => {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="mt-4 px-4 py-2 bg-green-500 text-white rounded shadow-md"
+            className="mt-4 px-4 py-2 bg-green-500 text-white rounded z-10 shadow-md"
             onClick={restartGame}
           >
             Restart Game
@@ -123,12 +142,12 @@ const MemoryGame = () => {
         </>
       ) : (
         <motion.div
-          className="mt-8 p-4 bg-white rounded-lg shadow-lg w-1/3 text-center  "
+          className="mt-8 p-4 bg-white rounded-lg shadow-lg w-1/3 text-center text-slate-900 z-10"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-2xl font-bold mb-4">Game Over!</h2>
+          <h2 className="text-2xl font-bold mb-4 ">Game Over!</h2>
           <p>Final Score: {finalScore}</p>
           <p>Total Flips: {flips}</p>
           <button
