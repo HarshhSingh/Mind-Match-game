@@ -27,31 +27,24 @@ const hardDeck = [
   "🦀",
   "🦞",
 ];
-export const createShuffledDeck = ({
-  difficulty = "easy",
-}: {
-  difficulty?: string;
-}) => {
-  let values: string[] = []; // Card values
-  switch (difficulty) {
-    case "hard":
-      values = hardDeck;
-      break;
-    case "medium":
-      values = mediumDeck;
-      break;
-    case "easy":
-    default:
-      values = easyDeck;
-      break;
-  }
+export const createShuffledDeck = (difficulty?: string) => {
+  const values = (() => {
+    switch (difficulty) {
+      case "hard":
+        return hardDeck;
+      case "medium":
+        return mediumDeck;
+      case "easy":
+      default:
+        return easyDeck;
+    }
+  })();
 
-  const deck = [...values, ...values] // Duplicate values for pairs
+  return [...values, ...values] // Duplicate values for pairs
     .map((value, index) => ({
       id: index,
       value,
       matched: false,
     }))
     .sort(() => Math.random() - 0.5); // Shuffle the deck
-  return deck;
 };

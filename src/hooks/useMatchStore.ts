@@ -18,7 +18,7 @@ interface IStore extends IStoreState {
 
 export const useMindMatchStore = create<IStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       highscores: [],
       difficulty: "easy",
       setDifficulty: (difficulty: TDifficulty) =>

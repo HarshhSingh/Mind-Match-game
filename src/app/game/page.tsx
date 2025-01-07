@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { createShuffledDeck } from "@/utils/createShuffleDeck";
 import { motion } from "framer-motion";
 import {
@@ -14,10 +14,15 @@ import { StickerCard } from "@/components/StickerCard";
 import { useMindMatchStore } from "@/hooks/useMatchStore";
 import { cn } from "@/lib/utils";
 
+type IDeck = {
+  id: number;
+  value: string;
+  matched: boolean;
+};
 const MemoryGame = () => {
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const { difficulty } = useMindMatchStore();
-  const [deck, setDeck] = useState(createShuffledDeck({ difficulty }));
+  const [deck, setDeck] = useState<IDeck[]>(createShuffledDeck(difficulty));
   const [score, setScore] = useState(1000);
   const [flips, setFlips] = useState(0);
   const [matchStreak, setMatchStreak] = useState(0);
@@ -56,14 +61,16 @@ const MemoryGame = () => {
   const extraFlipsPenalty = Math.max(flips - idealFlips, 0) * 10; // 10 points per extra flip
   const finalScore = Math.max(score - extraFlipsPenalty, 0);
 
-
   const restartGame = () => {
-    setDeck(createShuffledDeck({ difficulty }));
+    setDeck(createShuffledDeck(difficulty));
     setFlippedCards([]);
     setFlips(0);
     setMatchStreak(0);
     setScore(1000);
   };
+  useEffect(() => {
+    setDeck(createShuffledDeck(difficulty)); // Update deck on difficulty change
+  }, [difficulty]);
 
   return (
     <div className="flex flex-col items-center h-full gap-10">
@@ -110,7 +117,9 @@ const MemoryGame = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
               className={cn(
-                `grid grid-cols-${difficulty === "easy" ? "4" : "6"} gap-4 p-4`
+                `grid ${
+                  difficulty === "easy" ? "grid-cols-4" : "grid-cols-6"
+                } gap-4 p-4`
               )}
             >
               {deck.map((card, index) => (
