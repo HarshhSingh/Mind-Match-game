@@ -75,7 +75,7 @@ const MemoryGame = () => {
   return (
     <div className="flex flex-col items-center h-full gap-10">
       <h1 className="text-xl font-bold p-3 text-slate-800 dark:text-white">
-        How's your memory??{" "}
+        How&apos;s your memory??{" "}
       </h1>
       <div className="absolute inset-0 opacity-100 transition-opacity duration-500 dark:opacity-100">
         {[...Array(1000)].map((_, i) => (
